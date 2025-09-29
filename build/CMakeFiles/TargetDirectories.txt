@@ -1,0 +1,4 @@
+/workspaces/oop_labs/lab2/build/CMakeFiles/lab2_lib.dir
+/workspaces/oop_labs/lab2/build/CMakeFiles/lab2_exe.dir
+/workspaces/oop_labs/lab2/build/CMakeFiles/edit_cache.dir
+/workspaces/oop_labs/lab2/build/CMakeFiles/rebuild_cache.dir
