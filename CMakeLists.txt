@@ -1,39 +1,34 @@
-# CMakeLists.txt для лабораторной работы 2
-# Демонстрирует современную организацию проекта с разделением на библиотеку и исполняемый файл
-
 cmake_minimum_required(VERSION 3.10)
+project(lab2)
 
-# Настройка проекта
-project(lab2 
-    VERSION 1.0.0
-    DESCRIPTION "Лабораторная работа 2: Класс DashArray с Правилом пяти"
-    LANGUAGES CXX
-)
-
-# Настройка стандарта C++
-set(CMAKE_CXX_STANDARD 11)  # Изменено с 20 на 11 для совместимости
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Настройка директорий
-set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-# Добавление директории с заголовочными файлами
-include_directories(${INCLUDE_DIR})
 
-# Поиск исходных файлов библиотеки
-file(GLOB_RECURSE LIBRARY_SOURCES LIST_DIRECTORIES false ${SOURCE_DIR}/*.cpp)
+# Добавление опций компиляции
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=maybe-uninitialized")
 
-# Создание библиотеки
-add_library(lab2_lib ${LIBRARY_SOURCES})
+# Установка Google Test
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG v1.15.0
+  TLS_VERIFY false
+)
 
-# Создание исполняемого файла
-add_executable(lab2_exe main.cpp)
+FetchContent_MakeAvailable(googletest)
 
-# Связывание библиотеки с исполняемым файлом
-target_link_libraries(lab2_exe PRIVATE lab2_lib)
+add_library(${CMAKE_PROJECT_NAME}_lib src/bitstring.cpp)
+add_executable(${CMAKE_PROJECT_NAME}_exe main.cpp)
 
-# Настройка компилятора (опционально)
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(lab2_lib PRIVATE -Wall -Wextra -Wpedantic)
-    target_compile_options(lab2_exe PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+target_link_libraries(${CMAKE_PROJECT_NAME}_exe PRIVATE ${CMAKE_PROJECT_NAME}_lib)
+
+# Добавление тестов
+enable_testing()
+
+add_executable(tests test/tests_l2.cpp)
+target_link_libraries(tests ${CMAKE_PROJECT_NAME}_lib gtest_main)
+
+# Добавление тестов в тестовый набор
+add_test(NAME MyProjectTests COMMAND tests)

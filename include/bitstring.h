@@ -1,5 +1,4 @@
 #pragma once
-
 #include <initializer_list>
 #include <string>
 #include <iostream>
@@ -9,7 +8,6 @@ class BitString {
 private:
     size_t arraySize;           
     unsigned char* dataArray;   
-    void removing_leading_zeros();
 public:
     BitString();
     BitString(const size_t& n, unsigned char t = 0);
@@ -32,9 +30,10 @@ public:
     BitString AND(const BitString& other);
     BitString OR(const BitString& other);
     BitString XOR(const BitString& other);
-    BitString NOT(const BitString& num);
+    BitString NOT();
 
-    double convert_to_decimal();
+    double convert_to_decimal() const;
+    void removing_leading_zeros();
 
     std::ostream& print(std::ostream& outputStream);
     
