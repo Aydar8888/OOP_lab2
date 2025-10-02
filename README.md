@@ -27,6 +27,20 @@
 7. Перегрузку операторов применять не нужно;
 8. Объекты классов должны быть иммутабельными (не меняться после создания), результат методов должен возвращаться как новый экземпляр объекта.
 
+```
+class Array 
+{  
+public: 
+   Array(); 
+   Array(const size_t & n, unsigned char t = 0); 
+   Array(const std::initializer_list< unsigned char> &t); 
+   Array(const string &t); 
+   Array(const Array& other); 
+   Array(Array&& other) noexcept;               
+   virtual ~Array() noexcept; 
+};
+```
+
 
 ## Сборка и запуск проекта
 
