@@ -129,10 +129,16 @@ BitString BitString::copy() {
 }
 
 bool BitString::more(const BitString &other) {
+    if (arraySize > other.arraySize) {
+        return true;
+    }
     return convert_to_decimal() > other.convert_to_decimal();
 }
 
 bool BitString::less(const BitString &other) {
+    if (arraySize < other.arraySize) {
+        return true;
+    }
     return convert_to_decimal() > other.convert_to_decimal();
 }
 
