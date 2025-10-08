@@ -41,6 +41,20 @@ public:
 };
 ```
 
+## Структура проекта
+
+```
+lab2/
+├── CMakeLists.txt          # Файл конфигурации CMake
+├── main.cpp                # Основная программа
+├── include/
+│   └── bitstring.h        # Заголовочный файл
+├── src/
+│   └── bitstring.cpp      # Реализация методов 
+├── test/
+│   └── tests_l2.cpp         # Unit-тесты с использованием Google Test
+└── readme.md               # Данный файл
+```
 
 ## Сборка и запуск проекта
 

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "../include/bitstring.h"
 
-
+// проверка перевода битовой строки в десятичное число
 TEST(BitStringTest, test_convet_to_decimal1) {
     BitString bs;
     EXPECT_EQ(bs.convert_to_decimal(), 0);
@@ -12,6 +12,7 @@ TEST(BitStringTest, test_convet_to_decimal2) {
     EXPECT_EQ(bs.convert_to_decimal(), 31); // 11111 = 31
 }
 
+// проверка конструкторов
 TEST(BitStringTest, test_constructor1) {
     EXPECT_THROW(BitString(5, 2), std::invalid_argument);
 }
@@ -46,12 +47,14 @@ TEST(BitStringTest, test_constructor7) {
     EXPECT_EQ(bs2.convert_to_decimal(), 7);
 }
 
+// проверка удаления ведущих нулей
 TEST(BitStringTest, test_removing_leading_zeros) {
     BitString bs("000101");
     bs.removing_leading_zeros();
     EXPECT_EQ(bs.convert_to_decimal(), 5);
 }
 
+// проверка +
 TEST(BitStringTest, test_add) {
     BitString bs1("1011"); // 11
     BitString bs2("110");  // 6
@@ -59,6 +62,7 @@ TEST(BitStringTest, test_add) {
     EXPECT_EQ(result.convert_to_decimal(), 17);
 }
 
+// провекрка -
 TEST(BitStringTest, test_remove) {
     BitString bs1("1011"); // 11
     BitString bs2("10");   // 2
@@ -66,18 +70,28 @@ TEST(BitStringTest, test_remove) {
     EXPECT_EQ(result.convert_to_decimal(), 9);
 }
 
+// проверка copy
 TEST(BitStringTest, test_copy) {
     BitString bs1("1111");
     BitString bs2 = bs1.copy();
     EXPECT_EQ(bs2.convert_to_decimal(), 15);
 }
-
+ 
+// провекрка >
 TEST(BitStringTest, test_more) {
     BitString bs1("1010"); // 10
     BitString bs2("1001"); // 9
     EXPECT_TRUE(bs1.more(bs2));
 }
 
+// проверка <
+TEST(BitStringTest, test_less) {
+    BitString bs1("1010"); // 10
+    BitString bs2("1001"); // 9
+    EXPECT_FALSE(bs1.less(bs2));
+}
+
+// ==
 TEST(BitStringTest, test_equally) {
     BitString bs1("111");
     BitString bs2("111");

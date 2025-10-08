@@ -1,7 +1,9 @@
 #include "../include/bitstring.h"
 
+// конструктор по умолчанию
 BitString::BitString() : arraySize(0), dataArray(nullptr) {}
 
+// конструктор с заполнением
 BitString::BitString(const size_t& arraySize, unsigned char defaultValue) {
     if (defaultValue != 0 && defaultValue != 1) {
         throw std::invalid_argument("Битовая строка может сотстоять только из 0 или 1");
@@ -12,7 +14,7 @@ BitString::BitString(const size_t& arraySize, unsigned char defaultValue) {
         this->dataArray[i] = defaultValue;
     }
 }
-
+// конструктор из списка инициализации
 BitString::BitString(const std::initializer_list<unsigned char>& initialValues) {
     arraySize = initialValues.size();
     dataArray = new unsigned char[arraySize];
@@ -25,6 +27,7 @@ BitString::BitString(const std::initializer_list<unsigned char>& initialValues) 
     }
 }
 
+// конструктор из строки
 BitString::BitString(const std::string& sourceString) {
     arraySize = sourceString.size();
     dataArray = new unsigned char[arraySize];
@@ -36,6 +39,7 @@ BitString::BitString(const std::string& sourceString) {
     }
 }
 
+// копирующий
 BitString::BitString(const BitString& other)  {
     arraySize = other.arraySize;
     dataArray = new unsigned char[arraySize];
@@ -45,6 +49,8 @@ BitString::BitString(const BitString& other)  {
     }
 }
 
+
+// перемещающий
 BitString::BitString(BitString&& other) noexcept {
     arraySize = other.arraySize;
     dataArray = other.dataArray;
@@ -53,6 +59,7 @@ BitString::BitString(BitString&& other) noexcept {
     other.dataArray = nullptr;
 }
 
+// диструктор
 BitString::~BitString() noexcept {
     std::cout << "Деструктор" << std::endl;
     if (dataArray != nullptr) {
@@ -139,13 +146,15 @@ bool BitString::less(const BitString &other) {
     if (arraySize < other.arraySize) {
         return true;
     }
-    return convert_to_decimal() > other.convert_to_decimal();
+    return convert_to_decimal() < other.convert_to_decimal();
 }
 
 bool BitString::equally(const BitString &other) {
     return convert_to_decimal() == other.convert_to_decimal();
 }
 
+
+// Операция +=
 BitString BitString::oper1(const BitString &other) {
     BitString temp(this->add(other)); 
     delete[] dataArray;
@@ -158,6 +167,8 @@ BitString BitString::oper1(const BitString &other) {
     return *this;
 }
 
+
+// Операция -=
 BitString BitString::oper2(const BitString &other) {
     BitString temp(this->remove(other)); 
     delete[] dataArray;
