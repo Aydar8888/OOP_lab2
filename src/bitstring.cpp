@@ -1,4 +1,5 @@
 #include "../include/bitstring.h"
+#include <cstddef>
 
 // конструктор по умолчанию
 BitString::BitString() : arraySize(0), dataArray(nullptr) {}
@@ -14,6 +15,7 @@ BitString::BitString(const size_t& arraySize, unsigned char defaultValue) {
         this->dataArray[i] = defaultValue;
     }
 }
+
 // конструктор из списка инициализации
 BitString::BitString(const std::initializer_list<unsigned char>& initialValues) {
     arraySize = initialValues.size();
@@ -49,7 +51,6 @@ BitString::BitString(const BitString& other)  {
     }
 }
 
-
 // перемещающий
 BitString::BitString(BitString&& other) noexcept {
     arraySize = other.arraySize;
@@ -59,9 +60,9 @@ BitString::BitString(BitString&& other) noexcept {
     other.dataArray = nullptr;
 }
 
-// диструктор
+// деструктор
 BitString::~BitString() noexcept {
-    std::cout << "Деструктор" << std::endl;
+    // std::cout << "Деструктор" << std::endl;
     if (dataArray != nullptr) {
         delete[] dataArray;
         dataArray = nullptr;
@@ -69,12 +70,17 @@ BitString::~BitString() noexcept {
     arraySize = 0;
 }
 
-void BitString::removing_leading_zeros() {
+void BitString::rm_leading_zeros() {
+    if (arraySize == 0) {
+        return;
+    }
     size_t i {0};
     while (i < arraySize - 1 && dataArray[i] == 0) {
         i++;
     }
-    if (i == 0) return;
+    if (i == 0) {
+        return;
+    }
     size_t new_size = arraySize - i;
     unsigned char* new_data = new unsigned char[new_size];
     for (size_t j {0}; j < new_size; ++j) {
@@ -83,6 +89,29 @@ void BitString::removing_leading_zeros() {
     delete[] dataArray;
     dataArray = new_data;
     arraySize = new_size;
+}
+
+unsigned char BitString::last_bit(size_t p) const {
+    if (arraySize > p ) {
+        return dataArray[arraySize - p - 1];
+    } 
+    return 0;
+}
+
+// компаратор
+int BitString::compare(const BitString &other) const {
+    BitString copy(*this);
+    BitString other_copy(other);
+    copy.rm_leading_zeros();
+    other_copy.rm_leading_zeros();
+    if (copy.arraySize != other_copy.arraySize) {
+        return (copy.arraySize > other_copy.arraySize) ? 1 : -1;
+    }
+    for (size_t i {0}; i < copy.arraySize; ++i) {
+        if (copy.dataArray[i] > other_copy.dataArray[i]) return 1;
+        if (copy.dataArray[i] < other_copy.dataArray[i]) return -1;
+    }
+    return 0;
 }
 
 double BitString::convert_to_decimal() const {
@@ -94,30 +123,31 @@ double BitString::convert_to_decimal() const {
 }
 
 BitString BitString::add(const BitString& other) {
-    size_t max_size = (arraySize > other.arraySize) ? arraySize : other.arraySize;
+    size_t max_size = MAX(arraySize, other.arraySize);
     BitString result(max_size + 1, 0);
     int in_the_mind {0};
-    for (int i {0}; i < max_size; ++i) {
-        unsigned char b1 {0}, b2 {0};
-        b1 = (arraySize - i - 1 >= 0) ? dataArray[arraySize - i - 1] : 0;
-        b2 = (other.arraySize - i - 1 >= 0) ? other.dataArray[other.arraySize - i - 1] : 0;
+    for (size_t i {0}; i < max_size; ++i) {
+        unsigned char b1 = last_bit(i);
+        unsigned char b2 = other.last_bit(i);
         result.dataArray[result.arraySize - i - 1] = (b1 + b2 + in_the_mind) % 2;
         in_the_mind  = (b1 + b2 + in_the_mind) / 2;
     }
     if (in_the_mind) {
         result.dataArray[0] = in_the_mind;
     }
-    result.removing_leading_zeros();
+    result.rm_leading_zeros();
     return result;
 }
 
 BitString BitString::remove(const BitString &other) {
+    if (less(other)) {
+        throw std::invalid_argument("Первое число меньше второго");
+    }
     BitString result(arraySize, 0);
     int debt {0};
-    for (int i {0}; i < arraySize; ++i) {
-        int b1 {0}, b2 {0};
-        b1 = dataArray[arraySize - i - 1];
-        b2 = (other.arraySize - i - 1 >= 0) ? other.dataArray[other.arraySize - i - 1] : 0;
+    for (size_t i {0}; i < arraySize; ++i) {
+        unsigned char b1 = last_bit(i);
+        unsigned char b2 = other.last_bit(i);
         int temp = b1 - b2 - debt;
         if (temp < 0) {
             temp += 2; 
@@ -127,7 +157,7 @@ BitString BitString::remove(const BitString &other) {
         }
         result.dataArray[arraySize - i - 1] = static_cast<unsigned char>(temp);
     }
-    result.removing_leading_zeros();
+    result.rm_leading_zeros();
     return result;
 }
 
@@ -136,34 +166,28 @@ BitString BitString::copy() {
 }
 
 bool BitString::more(const BitString &other) {
-    if (arraySize > other.arraySize) {
-        return true;
-    }
-    return convert_to_decimal() > other.convert_to_decimal();
+    return compare(other) == 1;
 }
 
 bool BitString::less(const BitString &other) {
-    if (arraySize < other.arraySize) {
-        return true;
-    }
-    return convert_to_decimal() < other.convert_to_decimal();
+    return compare(other) == -1;
 }
 
 bool BitString::equally(const BitString &other) {
-    return convert_to_decimal() == other.convert_to_decimal();
+    return compare(other) == 0;
 }
-
 
 // Операция +=
 BitString BitString::oper1(const BitString &other) {
     BitString temp(this->add(other)); 
-    delete[] dataArray;
-
-    arraySize = temp.arraySize;
-    dataArray = temp.dataArray;    
-
-    temp.arraySize = 0;
-    temp.dataArray = nullptr;
+    if (arraySize != temp.arraySize) {
+        delete [] dataArray;
+        dataArray = new unsigned char[temp.arraySize];
+        arraySize = temp.arraySize;
+    }
+    for (size_t i {0}; i < arraySize; ++i) {
+        dataArray[i] = temp.dataArray[i];
+    }
     return *this;
 }
 
@@ -171,48 +195,48 @@ BitString BitString::oper1(const BitString &other) {
 // Операция -=
 BitString BitString::oper2(const BitString &other) {
     BitString temp(this->remove(other)); 
-    delete[] dataArray;
-
-    arraySize = temp.arraySize;
-    dataArray = temp.dataArray;
-
-    temp.arraySize = 0;
-    temp.dataArray = nullptr;
-    
+    if (arraySize != temp.arraySize) {
+        delete [] dataArray;
+        dataArray = new unsigned char[temp.arraySize];
+        arraySize = temp.arraySize;
+    }
+    for (size_t i {0}; i < arraySize; ++i) {
+        dataArray[i] = temp.dataArray[i];
+    }
     return *this;
 }
 
 BitString BitString::AND(const BitString& other) {
-    size_t max_size = (arraySize > other.arraySize) ? arraySize : other.arraySize;
+    size_t max_size = MAX(arraySize, other.arraySize);
     BitString result(max_size, 0);
-    for (int i = 0; i < max_size; ++i) {
-        unsigned char b1 {0}, b2 {0};
-        b1 = (arraySize - i - 1 >= 0) ? dataArray[arraySize - i - 1] : 0;
-        b2 = (other.arraySize - i - 1 >= 0) ? other.dataArray[other.arraySize - i - 1] : 0;
+    for (size_t i {0}; i < max_size; ++i) {
+        unsigned char b1 = last_bit(i);
+        unsigned char b2 = other.last_bit(i);
         result.dataArray[max_size - i - 1] = b1 & b2;
     }
     return result;
 }
 
 BitString BitString::OR(const BitString& other) {
-    size_t max_size = (arraySize > other.arraySize) ? arraySize : other.arraySize;
+    size_t max_size = MAX(arraySize, other.arraySize);
     BitString result(max_size, 0);
-    for (int i = 0; i < max_size; ++i) {
-        unsigned char b1 {0}, b2 {0};
-        b1 = (arraySize - i - 1 >= 0) ? dataArray[arraySize - i - 1] : 0;
-        b2 = (other.arraySize - i - 1 >= 0) ? other.dataArray[other.arraySize - i - 1] : 0;
+    for (size_t i {0}; i < max_size; ++i) {
+        unsigned char b1 = last_bit(i);
+        unsigned char b2 = other.last_bit(i);
         result.dataArray[max_size - i - 1] = b1 | b2;
     }
     return result;
 }
 
 BitString BitString::XOR(const BitString& other) {
-    size_t max_size = (arraySize > other.arraySize) ? arraySize : other.arraySize;
+    size_t max_size = MAX(arraySize, other.arraySize);
+    if (max_size == 0) {
+        return BitString(1, 1);
+    }
     BitString result(max_size, 0);
-    for (int i = 0; i < max_size; ++i) {
-        unsigned char b1 {0}, b2 {0};
-        b1 = (arraySize - i - 1 >= 0) ? dataArray[arraySize - i - 1] : 0;
-        b2 = (other.arraySize - i - 1 >= 0) ? other.dataArray[other.arraySize - i - 1] : 0;
+    for (size_t i {0}; i < max_size; ++i) {
+        unsigned char b1 = last_bit(i);
+        unsigned char b2 = other.last_bit(i);
         result.dataArray[max_size - i - 1] = b1 ^ b2;
     }
     return result;
@@ -220,14 +244,14 @@ BitString BitString::XOR(const BitString& other) {
 
 BitString BitString::NOT() {
     BitString result(arraySize, 0);
-    for (size_t i = 0; i < arraySize; ++i) {
-        result.dataArray[i] = abs(1 - dataArray[i]);
+    for (size_t i {0}; i < arraySize; ++i) {
+        result.dataArray[i] = dataArray[i] ^ 1;
     }
     return result;
 }
 
 std::ostream& BitString::print(std::ostream& outputStream) {
-    for (size_t i = 0; i < arraySize; ++i) {
+    for (size_t i {0}; i < arraySize; ++i) {
         outputStream << static_cast<int>(dataArray[i]);
     }
     return outputStream;

@@ -2,7 +2,8 @@
 #include <initializer_list>
 #include <string>
 #include <iostream>
-#include <math.h>
+#include <cmath>
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 class BitString {
 private:
@@ -32,8 +33,10 @@ public:
     BitString XOR(const BitString& other);
     BitString NOT();
 
-    double convert_to_decimal() const; // конвертация в 10 числа
-    void removing_leading_zeros(); // ведущие нули
+    void rm_leading_zeros(); // ведущие нули
+    unsigned char last_bit(size_t p) const;
+    int compare(const BitString &other) const;
+    double convert_to_decimal() const;
 
     std::ostream& print(std::ostream& outputStream); // вывод в поток
     

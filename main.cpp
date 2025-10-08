@@ -25,7 +25,7 @@ int main() {
     bs9.print(std::cout) << std::endl;
     BitString bs10("000000101");
     bs10.print(std::cout) << std::endl;
-    bs10.removing_leading_zeros();
+    bs10.rm_leading_zeros();
     bs10.print(std::cout) << std::endl;
     std::cout << bs10.convert_to_decimal() << std::endl;
     BitString bs11(bs7.add(bs8));
