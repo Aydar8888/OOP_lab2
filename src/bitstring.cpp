@@ -1,5 +1,4 @@
 #include "../include/bitstring.h"
-#include <cstddef>
 
 // конструктор по умолчанию
 BitString::BitString() : arraySize(0), dataArray(nullptr) {}
