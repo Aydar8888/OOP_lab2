@@ -1,14 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
-project(lab2)
+project(lab2) 
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-# Добавление опций компиляции
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=maybe-uninitialized")
 
-# Установка Google Test
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -16,19 +13,18 @@ FetchContent_Declare(
   GIT_TAG v1.15.0
   TLS_VERIFY false
 )
-
 FetchContent_MakeAvailable(googletest)
 
-add_library(${CMAKE_PROJECT_NAME}_lib src/bitstring.cpp)
-add_executable(${CMAKE_PROJECT_NAME}_exe main.cpp)
 
-target_link_libraries(${CMAKE_PROJECT_NAME}_exe PRIVATE ${CMAKE_PROJECT_NAME}_lib)
+add_library(${PROJECT_NAME}_lib src/bitstring.cpp)
+add_executable(${PROJECT_NAME}_exe main.cpp)
 
-# Добавление тестов
+target_link_libraries(${PROJECT_NAME}_exe PRIVATE ${PROJECT_NAME}_lib)
+
+
 enable_testing()
 
-add_executable(tests test/tests_l2.cpp)
-target_link_libraries(tests ${CMAKE_PROJECT_NAME}_lib gtest_main)
+add_executable(${PROJECT_NAME}_tests test/tests_l2.cpp)
+target_link_libraries(${PROJECT_NAME}_tests PRIVATE ${PROJECT_NAME}_lib gtest_main)
 
-# Добавление тестов в тестовый набор
-add_test(NAME MyProjectTests COMMAND tests)
+add_test(NAME ${PROJECT_NAME}_MyProjectTests COMMAND ${PROJECT_NAME}_tests)
